@@ -13,6 +13,30 @@ define('JDML_TAX_SINGLE', 'Language');
 define('JDML_TAX_SLUG', 'language');
 define('JDML_TAX_SLUG_PLURAL', 'languages');
 
+class JDML_AdminPostTable {
+
+  static function add_new_column($defaults) {
+    $defaults[JDML_TAX_SLUG_PLURAL] = __(JDML_TAX_SLUG);
+    return $defaults;
+  }
+
+  static function add_column_data($column_name, $post_id) {
+    if ($column_name == JDML_TAX_SLUG_PLURAL) {
+      $_taxonomy = JDML_TAX_SLUG;
+      $terms = get_the_terms($post_id, $_taxonomy);
+      if (!empty($terms)) {
+        $out = array();
+        foreach ($terms as $t) {
+          $out[] = $t->name;
+        }
+        echo join(', ', $out);
+      } else {
+        _e('Language not set');
+      }
+    } 
+  }
+}
+
 function jdml_create_language_taxonomy() {
   register_taxonomy(JDML_TAX_SLUG, array('page', 'post'), array(
     'hierarchical' => false,
@@ -35,30 +59,9 @@ function jdml_create_language_taxonomy() {
   ));
 }
 
-function jdml_add_new_column($defaults) {
-  $defaults[JDML_TAX_SLUG_PLURAL] = __(JDML_TAX_SLUG);
-  return $defaults;
-}
-
-function jdml_add_column_data($column_name, $post_id) {
-  if ($column_name == JDML_TAX_SLUG_PLURAL) {
-    $_taxonomy = JDML_TAX_SLUG;
-    $terms = get_the_terms($post_id, $_taxonomy);
-    if (!empty($terms)) {
-      $out = array();
-      foreach ($terms as $t) {
-        $out[] = $t->name;
-      }
-      echo join(', ', $out);
-    } else {
-      _e('Language not set');
-    }
-  } 
-}
-
-add_filter('manage_post_posts_columns', 'jdml_add_new_column'); // post index column title
-add_filter('manage_page_posts_columns', 'jdml_add_new_column'); // page index column title
-add_action('manage_posts_custom_column', 'jdml_add_column_data', 10, 2); // post index column data
-add_action('manage_pages_custom_column', 'jdml_add_column_data', 10, 2); // page index column data
+add_filter('manage_post_posts_columns', array("JDML_AdminPostTable", 'add_new_column')); // post index column title
+add_filter('manage_page_posts_columns', array("JDML_AdminPostTable", 'add_new_column')); // page index column title
+add_action('manage_posts_custom_column', array("JDML_AdminPostTable", 'add_column_data'), 10, 2); // post index column data
+add_action('manage_pages_custom_column', array("JDML_AdminPostTable", 'add_column_data'), 10, 2); // page index column data
 add_action('init', 'jdml_create_language_taxonomy', 0 );
 

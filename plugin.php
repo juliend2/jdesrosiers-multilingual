@@ -2,7 +2,7 @@
 /* 
 Plugin Name: JDesrosiers Multilingual
 Plugin URI: 
-Description: A plugin that adds simple features to make your WordPress site multilingual
+Description: A plugin that adds simple features to help make your WordPress site multilingual
 Author: Julien Desrosiers
 Version: 1.0 
 Author URI: http://www.juliendesrosiers.com

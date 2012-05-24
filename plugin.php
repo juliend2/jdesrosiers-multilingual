@@ -8,6 +8,11 @@ Version: 1.0
 Author URI: http://www.juliendesrosiers.com
 */
 
+//
+// WARNING: JDesrosiers multilingual supports only two languages, 
+// so you can only build bilingual sites for now.
+//
+
 // -----------------------------------------------------------------
 // DEFINES
 // -----------------------------------------------------------------
@@ -17,7 +22,6 @@ define('JDML_TAX_SINGLE', 'Language');
 define('JDML_TAX_SLUG', 'language');
 define('JDML_TAX_SLUG_PLURAL', 'languages');
 // global variables:
-$jdml_languages = array('fr', 'en'); // supported languages (as slugs) (WARNING: right now, jdesrosiers multilingual supports only two languages)
 $jdml_post_types = array('post', 'page'); // jdml-enabled post types (as slugs)
 
 // ----------------------------------------------------------------
@@ -87,17 +91,50 @@ function jdml_add_language_metaboxe() {
   }
 }
 
+function jdml_get_post_language($post_id) {
+  return wp_get_object_terms($post_id, JDML_TAX_SLUG);
+}
+
+function jdml_get_post_language_slug($post_id) {
+  $post_language = jdml_get_post_language($post_id);
+  if (!empty($post_language)) {
+    return $post_language[0]->slug;
+  } else {
+    return false;
+  }
+}
+
+function jdml_get_post_corresponding_id($post_id) {
+  return get_post_meta($post_id, '_jdml_corresponding_post_id', true);
+}
+
+function jdml_get_all_languages() {
+  return get_terms(JDML_TAX_SLUG, array(
+    'orderby' => 'slug', 
+    'number' => 2
+  ));
+}
+
+function jdml_get_all_language_slugs() {
+  $slugs = array();
+  foreach (jdml_get_all_languages() as $lang) {
+    $slugs[] = $lang->slug;
+  }
+  return $slugs;
+}
+
 // The Post's corresponding post id Metabox
 function jdml_corresponding_post_id() {
-  global $post, $jdml_languages;
+  global $post;
   echo '<input type="hidden" name="jdmlcorrespondingpostidmeta_noncename" '
    . 'id="jdmlcorrespondingpostidmeta_noncename" value="'
    . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
   // Get the corresponding post id data if its already been entered
-  $corresponding_id = get_post_meta($post->ID, '_jdml_corresponding_post_id', true);
+  $corresponding_id = jdml_get_post_corresponding_id($post->ID);
   // Echo out the field
-  $current_languages = wp_get_object_terms($post->ID, 'language');
-  $other_languages = array_values(array_diff($jdml_languages, array($current_languages[0]->slug)));
+  $lang_slug = jdml_get_post_language_slug($post->ID);
+  $languages = jdml_get_all_language_slugs();
+  $other_languages = array_values(array_diff($languages, array($lang_slug)));
   $get_posts_conditions = array(
     'numberposts' => -1,
     'orderby' => 'title',
@@ -108,9 +145,9 @@ function jdml_corresponding_post_id() {
     $get_posts_conditions['language'] = $other_languages[0];
   }
   $probable_corresponding_posts = get_posts($get_posts_conditions);
-  $html = '<label for="jdml_corresponding_post_id">'. __('Corresponding '.$post->post_type, 'jdml') .':</label><br/>';
+  $html = '<label for="jdml_corresponding_post_id">'. __('Corresponding '. $post->post_type .'', 'jdml') .':</label><br/>';
   $html .= '<select name="_jdml_corresponding_post_id" id="jdml_corresponding_post_id">';
-  $html .= '<option value="">'. __('Corresponding '.$post->post_type, 'jdml') .'</option>';
+  $html .= '<option value="">'. __('[Select a '. $post->post_type .']', 'jdml') .'</option>';
   foreach ($probable_corresponding_posts as $p) {
     $html .= '<option value="'. $p->ID .'" ';
     if ($corresponding_id && $corresponding_id == $p->ID) {

@@ -123,6 +123,14 @@ function jdml_get_all_language_slugs() {
   return $slugs;
 }
 
+function jdml_get_other_language($post_id) {
+  $lang_slug = jdml_get_post_language_slug($post_id);
+  $languages = jdml_get_all_language_slugs();
+  $other_languages = array_values(array_diff($languages, array($lang_slug)));
+  if (!empty($other_languages)) { return $other_languages[0]; }
+  else { return false; }
+}
+
 // The Post's corresponding post id Metabox
 function jdml_corresponding_post_id() {
   global $post;
@@ -132,17 +140,15 @@ function jdml_corresponding_post_id() {
   // Get the corresponding post id data if its already been entered
   $corresponding_id = jdml_get_post_corresponding_id($post->ID);
   // Echo out the field
-  $lang_slug = jdml_get_post_language_slug($post->ID);
-  $languages = jdml_get_all_language_slugs();
-  $other_languages = array_values(array_diff($languages, array($lang_slug)));
+  $other_language = jdml_get_other_language($post->ID);
   $get_posts_conditions = array(
     'numberposts' => -1,
     'orderby' => 'title',
     'post_type' => $post->post_type,
     'post_status' => 'publish'
   );
-  if (!empty($other_languages) && !empty($other_languages[0])) {
-    $get_posts_conditions['language'] = $other_languages[0];
+  if (!empty($other_language)) {
+    $get_posts_conditions['language'] = $other_language;
   }
   $probable_corresponding_posts = get_posts($get_posts_conditions);
   $html = '<label for="jdml_corresponding_post_id">'. __('Corresponding '. $post->post_type .'', 'jdml') .':</label><br/>';

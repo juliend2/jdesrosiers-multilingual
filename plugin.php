@@ -28,6 +28,58 @@ $jdml_post_types = array('post', 'page'); // jdml-enabled post types (as slugs)
 // FUNCTIONS AND CLASSES
 // -----------------------------------------------------------------
 
+// Helper functions
+// -----------------------------------------------------------------
+
+// Returns an Object of the post's language, containing these properties:
+// name (String), slug (String)
+function jdml_get_post_language($post_id) {
+  return wp_get_object_terms($post_id, JDML_TAX_SLUG);
+}
+
+// Returns a String of the post's language slug, ex: 'fr'
+function jdml_get_post_language_slug($post_id) {
+  $post_language = jdml_get_post_language($post_id);
+  if (!empty($post_language)) {
+    return $post_language[0]->slug;
+  } else {
+    return false;
+  }
+}
+
+// Returns an Integer of the corresponding post ID
+function jdml_get_post_corresponding_id($post_id) {
+  return get_post_meta($post_id, '_jdml_corresponding_post_id', true);
+}
+
+// Returns an array of all the language Objects, which contains these 
+// properties: name (String), slug (String)
+function jdml_get_all_languages() {
+  return get_terms(JDML_TAX_SLUG, array(
+    'orderby' => 'slug', 
+    'number' => 2
+  ));
+}
+
+// Returns an array of all the language slugs as Strings
+function jdml_get_all_language_slugs() {
+  $slugs = array();
+  foreach (jdml_get_all_languages() as $lang) {
+    $slugs[] = $lang->slug;
+  }
+  return $slugs;
+}
+
+// Returns a String of the other language, by the post id
+function jdml_get_other_language_by_post($post_id) {
+  $lang_slug = jdml_get_post_language_slug($post_id);
+  $languages = jdml_get_all_language_slugs();
+  $other_languages = array_values(array_diff($languages, array($lang_slug)));
+  if (!empty($other_languages)) { return $other_languages[0]; }
+  else { return false; }
+}
+
+
 // New "language" column for posts (and other post types) table
 // -----------------------------------------------------------------
 
@@ -91,56 +143,17 @@ function jdml_add_language_metaboxe() {
   }
 }
 
-function jdml_get_post_language($post_id) {
-  return wp_get_object_terms($post_id, JDML_TAX_SLUG);
-}
-
-function jdml_get_post_language_slug($post_id) {
-  $post_language = jdml_get_post_language($post_id);
-  if (!empty($post_language)) {
-    return $post_language[0]->slug;
-  } else {
-    return false;
-  }
-}
-
-function jdml_get_post_corresponding_id($post_id) {
-  return get_post_meta($post_id, '_jdml_corresponding_post_id', true);
-}
-
-function jdml_get_all_languages() {
-  return get_terms(JDML_TAX_SLUG, array(
-    'orderby' => 'slug', 
-    'number' => 2
-  ));
-}
-
-function jdml_get_all_language_slugs() {
-  $slugs = array();
-  foreach (jdml_get_all_languages() as $lang) {
-    $slugs[] = $lang->slug;
-  }
-  return $slugs;
-}
-
-function jdml_get_other_language($post_id) {
-  $lang_slug = jdml_get_post_language_slug($post_id);
-  $languages = jdml_get_all_language_slugs();
-  $other_languages = array_values(array_diff($languages, array($lang_slug)));
-  if (!empty($other_languages)) { return $other_languages[0]; }
-  else { return false; }
-}
-
 // The Post's corresponding post id Metabox
 function jdml_corresponding_post_id() {
   global $post;
   echo '<input type="hidden" name="jdmlcorrespondingpostidmeta_noncename" '
    . 'id="jdmlcorrespondingpostidmeta_noncename" value="'
    . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
+
   // Get the corresponding post id data if its already been entered
   $corresponding_id = jdml_get_post_corresponding_id($post->ID);
   // Echo out the field
-  $other_language = jdml_get_other_language($post->ID);
+  $other_language = jdml_get_other_language_by_post($post->ID);
   $get_posts_conditions = array(
     'numberposts' => -1,
     'orderby' => 'title',
@@ -202,8 +215,10 @@ foreach ($jdml_post_types as $post_type) {
   add_filter('manage_'.$post_type.'_posts_columns', array("JDML_AdminPostTable", 'add_new_column')); // post type's index column title
   add_action('manage_'.$post_type.'s_custom_column', array("JDML_AdminPostTable", 'add_column_data'), 10, 2); // post type's index column data
 }
+
 // Taxonomy:
 add_action('init', 'jdml_create_language_taxonomy', 0);
+
 // Meta box:
 add_action('admin_init', 'jdml_add_language_metaboxe');
 add_action('save_post', 'jdml_save_post_meta', 1, 2);

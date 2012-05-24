@@ -17,6 +17,7 @@ define('JDML_TAX_SINGLE', 'Language');
 define('JDML_TAX_SLUG', 'language');
 define('JDML_TAX_SLUG_PLURAL', 'languages');
 // global variables:
+$jdml_languages = array('fr', 'en'); // supported languages (as slugs) (WARNING: right now, jdesrosiers multilingual supports only two languages)
 $jdml_post_types = array('post', 'page'); // jdml-enabled post types (as slugs)
 
 // ----------------------------------------------------------------
@@ -82,20 +83,43 @@ function jdml_create_language_taxonomy() {
 function jdml_add_language_metaboxe() {
   global $jdml_post_types;
   foreach ($jdml_post_types as $post_type) {
-    add_meta_box('jdml_corresponding_post_id', __('Corresponding Post', 'jdml'), 'jdml_corresponding_post_id', $post_type, 'side', 'default');
+    add_meta_box('jdml_corresponding_post_id', __('Corresponding Object', 'jdml'), 'jdml_corresponding_post_id', $post_type, 'side', 'default');
   }
 }
 
 // The Post's corresponding post id Metabox
 function jdml_corresponding_post_id() {
-  global $post;
+  global $post, $jdml_languages;
   echo '<input type="hidden" name="jdmlcorrespondingpostidmeta_noncename" '
    . 'id="jdmlcorrespondingpostidmeta_noncename" value="'
    . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
   // Get the corresponding post id data if its already been entered
   $corresponding_id = get_post_meta($post->ID, '_jdml_corresponding_post_id', true);
   // Echo out the field
-  echo '<input type="text" name="_jdml_corresponding_post_id" value="' . $corresponding_id  . '" class="widefat" />';
+  $current_languages = wp_get_object_terms($post->ID, 'language');
+  $other_languages = array_values(array_diff($jdml_languages, array($current_languages[0]->slug)));
+  $get_posts_conditions = array(
+    'numberposts' => -1,
+    'orderby' => 'title',
+    'post_type' => $post->post_type,
+    'post_status' => 'publish'
+  );
+  if (!empty($other_languages) && !empty($other_languages[0])) {
+    $get_posts_conditions['language'] = $other_languages[0];
+  }
+  $probable_corresponding_posts = get_posts($get_posts_conditions);
+  $html = '<label for="jdml_corresponding_post_id">'. __('Corresponding '.$post->post_type, 'jdml') .':</label><br/>';
+  $html .= '<select name="_jdml_corresponding_post_id" id="jdml_corresponding_post_id">';
+  $html .= '<option value="">'. __('Corresponding '.$post->post_type, 'jdml') .'</option>';
+  foreach ($probable_corresponding_posts as $p) {
+    $html .= '<option value="'. $p->ID .'" ';
+    if ($corresponding_id && $corresponding_id == $p->ID) {
+      $html .= ' selected="selected" ';
+    }
+    $html .= ' >'. $p->post_title .'</option>';
+  }
+  $html .= '</select>';
+  echo $html;
 }
 
 // Save the metabox data
@@ -118,7 +142,7 @@ function jdml_save_post_meta($post_id, $post) {
   $post_meta['_jdml_corresponding_post_id'] = $_POST['_jdml_corresponding_post_id'];
   // Add values of $post_meta as custom fields
   foreach ($post_meta as $key => $value) { // Cycle through the $post_meta array!
-    if ($post->post_type == 'revision') return; // Don't store custom data twice
+    // if ($post->post_type == 'revision') return; // Don't store custom data twice
     $value = implode(',', (array)$value); // If $value is an array, make it a CSV (unlikely)
     update_post_meta($post->ID, $key, $value); // (will add it if not already present)
     if (!$value) delete_post_meta($post->ID, $key); // Delete if blank
@@ -139,4 +163,6 @@ foreach ($jdml_post_types as $post_type) {
 add_action('init', 'jdml_create_language_taxonomy', 0);
 // Meta box:
 add_action('admin_init', 'jdml_add_language_metaboxe');
+add_action('save_post', 'jdml_save_post_meta', 1, 2);
+
 

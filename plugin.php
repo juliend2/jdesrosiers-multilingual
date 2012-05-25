@@ -157,6 +157,7 @@ function jdml_corresponding_post_id() {
   $get_posts_conditions = array(
     'numberposts' => -1,
     'orderby' => 'title',
+    'order' => 'ASC',
     'post_type' => $post->post_type,
     'post_status' => 'publish'
   );

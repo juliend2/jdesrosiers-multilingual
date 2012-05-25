@@ -1,4 +1,4 @@
-== JDesrosiers Multilingual ==
+=== JDesrosiers Multilingual ===
 Contributors: JDesrosiers
 Tags: multilingual
 Requires at least: 3.3.1
@@ -19,6 +19,8 @@ you create your own theme from scratch.
 
 For now, it only supports two languages. 
 
+This project is hosted on https://github.com/juliend2/jdesrosiers-multilingual
+
 == Installation ==
 
 1. Upload `jdesrosiers-multilingual` to the `/wp-content/plugins/` directory
@@ -31,4 +33,15 @@ field: `/%language%/%postname%/` . This will prepend the language slug to your
 post permalinks.
 1. In your template, add this tag where you want the language switcher
 to appear: `<?php jdml_language_switcher(); ?>`
+
+== Frequently Asked Questions ==
+
+= Does it supports more than two languages? =
+
+Right now, it only supports two languages. It is not my priority to support
+more than two languages, but I'm always open to pull requests.
+
+== Screenshots ==
+
+== Changelog ==
 

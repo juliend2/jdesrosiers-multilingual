@@ -34,7 +34,10 @@ $jdml_post_types = array('post', 'page'); // jdml-enabled post types (as slugs)
 // Displays a Language switcher
 function jdml_the_language_switcher($post_id=null, $label=null) {
   $post_id = is_null($post_id) ? get_the_ID() : $post_id;
-  $label = is_null($label) ? "other language" : $label;
+  if (is_null($label)) {
+    $corresponding_language = jdml_get_corresponding_language_object();
+    $label = $corresponding_language->name;
+  }
   $corresponding_post = jdml_get_corresponding_post($post_id);
   if ($corresponding_post) {
     return '<a href="'. $corresponding_post->guid .'">'. $label .'</a>';

@@ -31,6 +31,22 @@ $jdml_post_types = array('post', 'page'); // jdml-enabled post types (as slugs)
 // Helper functions
 // -----------------------------------------------------------------
 
+// Displays a Language switcher
+function jdml_the_language_switcher($post_id=null, $label=null) {
+  $post_id = is_null($post_id) ? get_the_ID() : $post_id;
+  $label = is_null($label) ? "other language" : $label;
+  $corresponding_post = jdml_get_corresponding_post($post_id);
+  if ($corresponding_post) {
+    return '<a href="'. $corresponding_post->guid .'">'. $label .'</a>';
+  } else {
+    return false;
+  }
+}
+
+function jdml_language_switcher($post_id=null, $label=null) {
+  echo jdml_the_language_switcher($post_id, $label);
+}
+
 // Returns an Object of the post's language, containing these properties:
 // name (String), slug (String)
 function jdml_get_post_language($post_id) {
@@ -47,8 +63,18 @@ function jdml_get_post_language_slug($post_id) {
   }
 }
 
+// post_id - Integer of the current post
+//
+// Returns an Object of the corresponding post
+function jdml_get_corresponding_post($post_id) {
+  $corresponding_id = jdml_get_corresponding_post_id($post_id);
+  return get_post($corresponding_id);
+}
+
+// post_id - Integer of the current post
+//
 // Returns an Integer of the corresponding post ID
-function jdml_get_post_corresponding_id($post_id) {
+function jdml_get_corresponding_post_id($post_id) {
   return get_post_meta($post_id, '_jdml_corresponding_post_id', true);
 }
 
@@ -61,6 +87,35 @@ function jdml_get_all_languages() {
   ));
 }
 
+// Returns the current language slug as a String (like 'en')
+function jdml_get_current_language_slug() {
+  return get_query_var('language');
+}
+
+// Returns the current language (taxonomy) Object
+function jdml_get_corresponding_language_object() {
+  $languages = jdml_get_all_languages();
+  $current_language_slug = jdml_get_current_language_slug();
+  foreach ($languages as $lang) {
+    if ($lang->slug !== $current_language_slug) {
+      return $lang;
+    }
+  }
+  return false;
+}
+
+// Returns the current language (taxonomy) Object
+function jdml_get_current_language_object() {
+  $languages = jdml_get_all_languages();
+  $current_language_slug = jdml_get_current_language_slug();
+  foreach ($languages as $lang) {
+    if ($lang->slug === $current_language_slug) {
+      return $lang;
+    }
+  }
+  return false;
+}
+
 // Returns an array of all the language slugs as Strings
 function jdml_get_all_language_slugs() {
   $slugs = array();
@@ -70,6 +125,8 @@ function jdml_get_all_language_slugs() {
   return $slugs;
 }
 
+// post_id - Integer of the current post id
+//
 // Returns a String of the other language, by the post id
 function jdml_get_other_language_by_post($post_id) {
   $lang_slug = jdml_get_post_language_slug($post_id);
@@ -86,7 +143,7 @@ function jdml_get_other_language_by_post($post_id) {
 //
 // Returns a link to edit the post in the admin
 function jdml_get_edit_post_link($post_id, $label=null) {
-  $p = get_post($corresponding_id);
+  $p = get_post($post_id);
   $label = is_null($label) ? $p->post_title : $label;
   return '<a href="post.php?action=edit&post='. $p->ID .'">'. $label .'</a>';
 }
@@ -166,7 +223,7 @@ function jdml_corresponding_post_id() {
    . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
 
   // Get the corresponding post id data if its already been entered
-  $corresponding_id = jdml_get_post_corresponding_id($post->ID);
+  $corresponding_id = jdml_get_corresponding_post_id($post->ID);
   // Echo out the field
   $other_language = jdml_get_other_language_by_post($post->ID);
   $get_posts_conditions = array(

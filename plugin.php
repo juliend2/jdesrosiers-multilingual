@@ -79,6 +79,17 @@ function jdml_get_other_language_by_post($post_id) {
   else { return false; }
 }
 
+// Admin-related functions
+// -----------------------------------------------------------------
+
+// post_id - Integer ID of the post
+//
+// Returns a link to edit the post in the admin
+function jdml_get_edit_post_link($post_id, $label=null) {
+  $p = get_post($corresponding_id);
+  $label = is_null($label) ? $p->post_title : $label;
+  return '<a href="post.php?action=edit&post='. $p->ID .'">'. $label .'</a>';
+}
 
 // New "language" column for posts (and other post types) table
 // -----------------------------------------------------------------
@@ -97,11 +108,15 @@ class JDML_AdminPostTable {
       if (!empty($terms)) {
         $out = array();
         foreach ($terms as $t) {
-          $out[] = $t->name;
+          $out[] = '<strong>'.$t->name.'</strong>';
         }
         echo join(', ', $out);
       } else {
         _e('Language not set');
+      }
+      $corresponding_id = get_post_meta($post_id, '_jdml_corresponding_post_id', true);
+      if (!empty($corresponding_id)) {
+        echo '<br/>Translation: '. jdml_get_edit_post_link($corresponding_id);
       }
     } 
   }
@@ -165,8 +180,8 @@ function jdml_corresponding_post_id() {
     $get_posts_conditions['language'] = $other_language;
   }
   $probable_corresponding_posts = get_posts($get_posts_conditions);
-  $html = '<label for="jdml_corresponding_post_id">'. __('Corresponding '. $post->post_type .'', 'jdml') .':</label><br/>';
-  $html .= '<select name="_jdml_corresponding_post_id" id="jdml_corresponding_post_id">';
+  $html = '<p><label for="jdml_corresponding_post_id"><strong>'. __('Corresponding '. $post->post_type .'', 'jdml') .'</strong></label></p>';
+  $html .= '<p><select name="_jdml_corresponding_post_id" id="jdml_corresponding_post_id">';
   $html .= '<option value="">'. __('[Select a '. $post->post_type .']', 'jdml') .'</option>';
   foreach ($probable_corresponding_posts as $p) {
     $html .= '<option value="'. $p->ID .'" ';
@@ -175,7 +190,13 @@ function jdml_corresponding_post_id() {
     }
     $html .= ' >'. $p->post_title .'</option>';
   }
-  $html .= '</select>';
+  $html .= '</select></p>';
+
+  $corresponding_id = get_post_meta($post->ID, '_jdml_corresponding_post_id', true);
+  if (!empty($corresponding_id)) {
+    $html .= '<p>'. jdml_get_edit_post_link($corresponding_id, __('Edit the Translation')) .'</p>';
+  }
+
   echo $html;
 }
 

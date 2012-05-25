@@ -26,6 +26,9 @@ For now, it only supports two languages.
 1. Go in Pages -> Languages, and add your two languages from there. Name should
 be something like "English", and Slug should be something like "en" (two
 lowercase letters).
-1. TODO: In your template, add this tag where you want the language switcher
+1. In Settings -> Permalinks, put the following in the "Custom Structure"
+field: `/%language%/%postname%/` . This will prepend the language slug to your
+post permalinks.
+1. In your template, add this tag where you want the language switcher
 to appear: `<?php jdml_language_switcher(); ?>`
 

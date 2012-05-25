@@ -50,7 +50,9 @@ function jdml_language_switcher($post_id=null, $label=null) {
 // Returns an Object of the post's language, containing these properties:
 // name (String), slug (String)
 function jdml_get_post_language($post_id) {
-  return wp_get_object_terms($post_id, JDML_TAX_SLUG);
+  $terms = wp_get_object_terms($post_id, JDML_TAX_SLUG);
+  if (!is_wp_error($terms) && !empty($terms) && is_object($terms[0])) { return $terms[0]->slug; }
+  else { return false; }
 }
 
 // Returns a String of the post's language slug, ex: 'fr'
@@ -284,6 +286,21 @@ function jdml_save_post_meta($post_id, $post) {
   }
 }
 
+// custom taxonomy permalinks
+
+function jdml_language_permalink($permalink, $post_id, $leavename) {
+  // if we didn't find %language% in this url, return the unchanged url:
+  if (strpos($permalink, '%'. JDML_TAX_SLUG .'%') === FALSE) return $permalink;
+  // Get the post:
+  $post = get_post($post_id);
+  if (!$post) return $permalink;
+  // Get the taxonomy terms:
+  $terms = wp_get_object_terms($post->ID, JDML_TAX_SLUG);
+  if (!is_wp_error($terms) && !empty($terms) && is_object($terms[0])) $taxonomy_slug = $terms[0]->slug;
+  else $taxonomy_slug = 'other';
+  // Return the translated version of the URL:
+  return str_replace('%'. JDML_TAX_SLUG .'%', $taxonomy_slug, $permalink);
+}
 
 // -----------------------------------------------------------------
 // ACTIONS AND FILTERS
@@ -302,4 +319,7 @@ add_action('init', 'jdml_create_language_taxonomy', 0);
 add_action('admin_init', 'jdml_add_language_metaboxe');
 add_action('save_post', 'jdml_save_post_meta', 1, 2);
 
+// Posts permalink translation:
+add_filter('post_link', 'jdml_language_permalink', 10, 3);
+add_filter('post_type_link', 'jdml_language_permalink', 10, 3);
 

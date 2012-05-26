@@ -22,7 +22,31 @@ define('JDML_TAX_SINGLE', 'Language');
 define('JDML_TAX_SLUG', 'language');
 define('JDML_TAX_SLUG_PLURAL', 'languages');
 // global variables:
-$jdml_post_types = array('post', 'page'); // jdml-enabled post types (as slugs)
+
+// jdml-enabled post types (as slugs):
+$jdml_post_types = array(
+  'post', 'page'
+); 
+// jdml-supported locales:
+$jdml_locales = array(
+  'de' => "de_DE",
+  'en' => "en_US",
+  'zh' => "zh_CN",
+  'fi' => "fi",
+  'fr' => "fr_FR",
+  'nl' => "nl_NL",
+  'sv' => "sv_SE",
+  'it' => "it_IT",
+  'ro' => "ro_RO",
+  'hu' => "hu_HU",
+  'ja' => "ja",
+  'es' => "es_ES",
+  'vi' => "vi",
+  'ar' => "ar",
+  'pt' => "pt_BR",
+  'pl' => "pl_PL",
+);
+
 
 // ----------------------------------------------------------------
 // FUNCTIONS AND CLASSES
@@ -327,13 +351,13 @@ function jdml_get_current_page_url() {
 
 // set the locale according to the current language
 function jdml_set_locale( $lang ) {
+  global $jdml_locales;
   $current_lang = jdml_get_current_language_slug();
-  if ( 'fr' == $current_lang ) {
-    return 'fr_FR';
-  } else {
-    // return original language
-    return $lang;
+  if (array_key_exists($current_lang, $jdml_locales)) {
+    return $jdml_locales[$current_lang];
   }
+  // or else: return original language
+  return $lang;
 }
 
 // -----------------------------------------------------------------

@@ -27,6 +27,7 @@ define('JDML_TAX_SLUG_PLURAL', 'languages');
 $jdml_post_types = array(
   'post', 'page'
 ); 
+
 // jdml-supported locales:
 $jdml_locales = array(
   'de' => "de_DE",
@@ -361,6 +362,17 @@ function jdml_set_locale( $lang ) {
   return $lang;
 }
 
+function jdml_registered_post_types() {
+  global $jdml_post_types;
+  $jdml_post_types = array();
+  $post_types=get_post_types('','names'); 
+  foreach ($post_types as $post_type ) {
+    if (!in_array($post_type, array('nav_menu_item', 'revision'))) {
+      $jdml_post_types[] = $post_type;
+    }
+  }
+}
+
 // -----------------------------------------------------------------
 // ACTIONS AND FILTERS
 // -----------------------------------------------------------------
@@ -384,4 +396,7 @@ add_filter('post_type_link', 'jdml_language_permalink', 10, 3);
 
 // Set the locale
 add_filter( 'locale', 'jdml_set_locale');
+
+// When post types are registered
+add_action('registered_post_type', 'jdml_registered_post_types');
 

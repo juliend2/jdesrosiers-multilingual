@@ -33,6 +33,9 @@ field: `/%language%/%postname%/` . This will prepend the language slug to your
 post permalinks.
 1. In your template, add this tag where you want the language switcher
 to appear: `<?php jdml_language_switcher(); ?>`
+1. Any custom post type that you may use need to be registered the 'language'
+taxonomy, like so: `register_taxonomy_for_object_type('language', 'slider-image');` , 
+(in the init hook).
 
 == Frequently Asked Questions ==
 

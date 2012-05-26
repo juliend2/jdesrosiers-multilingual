@@ -45,3 +45,12 @@ more than two languages, but I'm always open to pull requests.
 
 == Changelog ==
 
+== Todo ==
+
+* Add a way to opt-out a custom post type from being translatable
+* Merge the Language taxonomy meta box with the Corresponding Post meta box in the admin
+* Add an admin settings page for centralizing some configurations
+* Find a way to alter the query for the supported custom post types to
+  match only those that are assigned to the current language
+
+

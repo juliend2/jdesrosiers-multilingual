@@ -365,7 +365,7 @@ function jdml_set_locale( $lang ) {
 function jdml_registered_post_types() {
   global $jdml_post_types;
   $jdml_post_types = array();
-  $post_types=get_post_types('','names'); 
+  $post_types = get_post_types('','names'); 
   foreach ($post_types as $post_type ) {
     if (!in_array($post_type, array('nav_menu_item', 'revision'))) {
       $jdml_post_types[] = $post_type;

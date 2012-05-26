@@ -368,7 +368,10 @@ function jdml_registered_post_types() {
   $post_types = get_post_types('','names'); 
   foreach ($post_types as $post_type ) {
     if (!in_array($post_type, array('nav_menu_item', 'revision'))) {
+      // support this post type:
       $jdml_post_types[] = $post_type;
+      // add language taxonomy to this post_type:
+      register_taxonomy_for_object_type(JDML_TAX_SLUG, $post_type);
     }
   }
 }

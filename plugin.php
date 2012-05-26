@@ -274,7 +274,7 @@ function jdml_corresponding_post_id() {
     $get_posts_conditions['language'] = $other_language;
   }
   $probable_corresponding_posts = get_posts($get_posts_conditions);
-  $html = '<p><label for="jdml_corresponding_post_id"><strong>'. __('Corresponding '. $post->post_type .'', 'jdml') .'</strong></label></p>';
+  $html = '<p><label for="jdml_corresponding_post_id"><strong>'. __('Choose the '. $post->post_type .' translation', 'jdml') .'</strong></label></p>';
   $html .= '<p><select name="_jdml_corresponding_post_id" id="jdml_corresponding_post_id">';
   $html .= '<option value="">'. __('[Select a '. $post->post_type .']', 'jdml') .'</option>';
   foreach ($probable_corresponding_posts as $p) {

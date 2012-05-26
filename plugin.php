@@ -222,7 +222,7 @@ class JDML_AdminPostTable {
 function jdml_create_language_taxonomy() {
   global $jdml_post_types;
   register_taxonomy(JDML_TAX_SLUG, $jdml_post_types, array(
-    'hierarchical' => false,
+    'hierarchical' => true,
     'labels' => array(
       'name' => _x( JDML_TAX_NAME, 'jdml'),
       'singular_name' => _x( JDML_TAX_SINGLE, 'taxonomy singular name', 'jdml' ),

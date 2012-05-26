@@ -298,9 +298,9 @@ function jdml_save_post_meta($post_id, $post) {
   global $jdml_post_types;
   // if we're not in a jdml-enabled post type, skip.
   if (in_array($post->post_type, $jdml_post_types)) return $post;
-  // verify this came from the our screen and with proper authorization,
+  // verify this came from our screen and with proper authorization,
   // because save_post can be triggered at other times
-  if ( !wp_verify_nonce($_POST['jdmlcorrespondingpostidmeta_noncename'], plugin_basename(__FILE__)) ) {
+  if (empty($_POST['_jdml_corresponding_post_id']) || empty($_POST['jdmlcorrespondingpostidmeta_noncename']) || !wp_verify_nonce($_POST['jdmlcorrespondingpostidmeta_noncename'], plugin_basename(__FILE__)) ) {
     return $post->ID;
   }
   // Is the user allowed to edit the posts? 
@@ -353,6 +353,7 @@ function jdml_get_current_page_url() {
 function jdml_set_locale( $lang ) {
   global $jdml_locales;
   $current_lang = jdml_get_current_language_slug();
+  // the current language is a supported locale?
   if (array_key_exists($current_lang, $jdml_locales)) {
     return $jdml_locales[$current_lang];
   }

@@ -54,7 +54,7 @@ function jdml_language_switcher($post_id=null, $label=null) {
 // name (String), slug (String)
 function jdml_get_post_language($post_id) {
   $terms = wp_get_object_terms($post_id, JDML_TAX_SLUG);
-  if (!is_wp_error($terms) && !empty($terms) && is_object($terms[0])) { return $terms[0]->slug; }
+  if (!is_wp_error($terms) && !empty($terms) && is_object($terms[0])) { return $terms[0]; }
   else { return false; }
 }
 
@@ -62,7 +62,7 @@ function jdml_get_post_language($post_id) {
 function jdml_get_post_language_slug($post_id) {
   $post_language = jdml_get_post_language($post_id);
   if (!empty($post_language)) {
-    return $post_language[0]->slug;
+    return $post_language->slug;
   } else {
     return false;
   }
@@ -94,7 +94,14 @@ function jdml_get_all_languages() {
 
 // Returns the current language slug as a String (like 'en')
 function jdml_get_current_language_slug() {
-  return get_query_var('language');
+  // the query var is available too late in the execution to be used to define de $locale:
+  // return get_query_var('language');
+  // ...So we use the URL from the $_SERVER superglobal:
+  $base_url = get_bloginfo('wpurl');
+  $current_url = jdml_get_current_page_url();
+  $segments = substr($current_url, strlen($base_url));
+  preg_match('%^/?(\w{2})%', $segments, $matches);
+  return !empty($matches) ? $matches[1] : '';
 }
 
 // Returns the current language (taxonomy) Object
@@ -305,6 +312,30 @@ function jdml_language_permalink($permalink, $post_id, $leavename) {
   return str_replace('%'. JDML_TAX_SLUG .'%', $taxonomy_slug, $permalink);
 }
 
+// Returns http://www.mysite.com/the/page/
+function jdml_get_current_page_url() {
+  $pageURL = 'http';
+  if (is_ssl()) { $pageURL .= "s"; }
+  $pageURL .= "://";
+  if ($_SERVER["SERVER_PORT"] != "80") {
+    $pageURL .= $_SERVER["SERVER_NAME"].":".$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"];
+  } else {
+    $pageURL .= $_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
+  }
+  return $pageURL;
+}
+
+// set the locale according to the current language
+function jdml_set_locale( $lang ) {
+  $current_lang = jdml_get_current_language_slug();
+  if ( 'fr' == $current_lang ) {
+    return 'fr_FR';
+  } else {
+    // return original language
+    return $lang;
+  }
+}
+
 // -----------------------------------------------------------------
 // ACTIONS AND FILTERS
 // -----------------------------------------------------------------
@@ -325,4 +356,7 @@ add_action('save_post', 'jdml_save_post_meta', 1, 2);
 // Posts permalink translation:
 add_filter('post_link', 'jdml_language_permalink', 10, 3);
 add_filter('post_type_link', 'jdml_language_permalink', 10, 3);
+
+// Set the locale
+add_filter( 'locale', 'jdml_set_locale');
 

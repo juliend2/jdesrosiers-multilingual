@@ -240,9 +240,11 @@ class JDML_AdminPostTable {
   }
 
   function views_edit_post($views) {
+    global $post_type_object;
+    $post_type = $post_type_object->name;
     $languages = jdml_get_all_languages();
     foreach ($languages as $language) {
-      $views[$language->slug] = '<a href="edit.php?language='.$language->slug.'&post_type=page">'.$language->name.'</a>';
+      $views[$language->slug] = '<a href="edit.php?language='.$language->slug.'&post_type='.$post_type.'">'.$language->name.'</a>';
     }
     return $views;
   }
@@ -421,9 +423,9 @@ foreach ($jdml_post_types as $post_type) {
   add_filter('manage_'.$post_type.'_posts_columns', array("JDML_AdminPostTable", 'add_new_column')); // post type's index column title
   add_action('manage_'.$post_type.'s_custom_column', array("JDML_AdminPostTable", 'add_column_data'), 10, 2); // post type's index column data
   add_filter('edit_'.$post_type.'_per_page', array('JDML_AdminPostTable', 'edit_pages_per_page'));
+  add_filter('views_edit-'.$post_type, array('JDML_AdminPostTable', 'views_edit_post'));
 }
 // add_filter('parse_query', array('JDML_AdminPostTable', 'posts_query_filter'));
-add_filter('views_edit-page', array('JDML_AdminPostTable', 'views_edit_post'));
 
 // Taxonomy:
 add_action('init', 'jdml_create_language_taxonomy', 0);

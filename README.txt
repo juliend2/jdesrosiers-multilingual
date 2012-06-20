@@ -46,7 +46,7 @@ more than two languages, but I'm always open to pull requests.
 == Changelog ==
 
 = 1.2 =
-* Add language filter links in pages admin view
+* Add language filter links in posts (or any custom post type) admin view
 * Display all the posts (or any custom post type) in admin posts list view
 
 = 1.1 =

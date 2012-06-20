@@ -45,6 +45,13 @@ more than two languages, but I'm always open to pull requests.
 
 == Changelog ==
 
+= 1.1 =
+* Update the corresponding post's translation when selecting a corresponding
+  post via the metabox
+
+= 1.0 =
+* Working version
+
 == Todo ==
 
 * Add a way to opt-out a custom post type from being translatable

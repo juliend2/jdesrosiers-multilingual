@@ -4,7 +4,7 @@ Plugin Name: JDesrosiers Multilingual
 Plugin URI: 
 Description: A plugin that adds simple features to help make your WordPress site multilingual
 Author: Julien Desrosiers
-Version: 1.0 
+Version: 1.1
 Author URI: http://www.juliendesrosiers.com
 */
 
@@ -21,6 +21,7 @@ define('JDML_TAX_NAME', 'Languages');
 define('JDML_TAX_SINGLE', 'Language');
 define('JDML_TAX_SLUG', 'language');
 define('JDML_TAX_SLUG_PLURAL', 'languages');
+
 // global variables:
 
 // jdml-enabled post types (as slugs):
@@ -168,6 +169,7 @@ function jdml_get_all_language_slugs() {
 function jdml_get_other_language_by_post($post_id) {
   $lang_slug = jdml_get_post_language_slug($post_id);
   $languages = jdml_get_all_language_slugs();
+  if (empty($lang_slug)) return false;
   $other_languages = array_values(array_diff($languages, array($lang_slug)));
   if (!empty($other_languages)) { return $other_languages[0]; }
   else { return false; }
@@ -297,28 +299,31 @@ function jdml_corresponding_post_id() {
 // Save the metabox data
 function jdml_save_post_meta($post_id, $post) {
   global $jdml_post_types;
+  $key = '_jdml_corresponding_post_id';
   // if we're not in a jdml-enabled post type, skip.
   if (in_array($post->post_type, $jdml_post_types)) return $post;
   // verify this came from our screen and with proper authorization,
   // because save_post can be triggered at other times
-  if (empty($_POST['_jdml_corresponding_post_id']) || empty($_POST['jdmlcorrespondingpostidmeta_noncename']) || !wp_verify_nonce($_POST['jdmlcorrespondingpostidmeta_noncename'], plugin_basename(__FILE__)) ) {
+  if (empty($_POST[$key]) || empty($_POST['jdmlcorrespondingpostidmeta_noncename']) || !wp_verify_nonce($_POST['jdmlcorrespondingpostidmeta_noncename'], plugin_basename(__FILE__)) ) {
     return $post->ID;
   }
-  // Is the user allowed to edit the posts? 
+  // Is the user allowed to edit the posts?
   // TODO: see if we can verify this for more than just the 'post' post-type
   if (!current_user_can('edit_post', $post->ID)) {
     return $post->ID;
   }
   // OK, we're authenticated: we need to find and save the data
   // We'll put it into an array to make it easier to loop though.
-  $post_meta['_jdml_corresponding_post_id'] = $_POST['_jdml_corresponding_post_id'];
-  // Add values of $post_meta as custom fields
-  foreach ($post_meta as $key => $value) { // Cycle through the $post_meta array!
-    // if ($post->post_type == 'revision') return; // Don't store custom data twice
-    $value = implode(',', (array)$value); // If $value is an array, make it a CSV (unlikely)
-    update_post_meta($post->ID, $key, $value); // (will add it if not already present)
-    if (!$value) delete_post_meta($post->ID, $key); // Delete if blank
-  }
+  $corresponding_id = $_POST[$key];
+
+  // set the post's corresponding post:
+  $updated_post = update_post_meta($post->ID, $key, $corresponding_id);
+  if (!$corresponding_id) delete_post_meta($post->ID, ''); // Delete if blank
+
+  // set the corresponding post's corresponding post:
+  $corresponding_corresponding = $post->post_type == 'revision' ? $post->post_parent : $post->ID;
+  $updated_corresponding = update_post_meta((int)$corresponding_id, $key, $corresponding_corresponding);
+  if (!$post->ID) delete_post_meta((int)$corresponding_id, ''); // Delete if blank
 }
 
 // custom taxonomy permalinks

@@ -45,6 +45,10 @@ more than two languages, but I'm always open to pull requests.
 
 == Changelog ==
 
+= 1.2 =
+* Add language filter links in pages admin view
+* Display all the posts (or any custom post type) in admin posts list view
+
 = 1.1 =
 * Update the corresponding post's translation when selecting a corresponding
   post via the metabox

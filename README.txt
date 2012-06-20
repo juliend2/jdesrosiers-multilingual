@@ -45,6 +45,9 @@ more than two languages, but I'm always open to pull requests.
 
 == Changelog ==
 
+= 1.2.1 =
+* In posts admin view: hightlight the current language in the filters list
+
 = 1.2 =
 * Add language filter links in posts (or any custom post type) admin view
 * Display all the posts (or any custom post type) in admin posts list view
@@ -62,4 +65,8 @@ more than two languages, but I'm always open to pull requests.
 * Merge the Language taxonomy meta box with the Corresponding Post meta box in the admin
 * Add an admin settings page for centralizing some configurations
 
+== Known issues ==
+
+* When we're in a page that has the same slug as its corresponding page, both
+  posts show up
 

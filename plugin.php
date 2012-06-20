@@ -4,7 +4,7 @@ Plugin Name: JDesrosiers Multilingual
 Plugin URI: 
 Description: A plugin that adds simple features to help make your WordPress site multilingual
 Author: Julien Desrosiers
-Version: 1.2
+Version: 1.2.1
 Author URI: http://www.juliendesrosiers.com
 */
 
@@ -244,7 +244,11 @@ class JDML_AdminPostTable {
     $post_type = $post_type_object->name;
     $languages = jdml_get_all_languages();
     foreach ($languages as $language) {
-      $views[$language->slug] = '<a href="edit.php?language='.$language->slug.'&post_type='.$post_type.'">'.$language->name.'</a>';
+      $class = !empty($_GET['post_status']) && !empty($_GET['language']) && $_GET['language']==$language->slug 
+        ? ' class="current"' : '';
+      $views[$language->slug] = '<a href="edit.php?language='.$language->slug.
+        '&post_type='.$post_type.
+        '&post_status=published"'.$class.'>'.$language->name.'</a>';
     }
     return $views;
   }

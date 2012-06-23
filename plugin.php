@@ -175,6 +175,7 @@ function jdml_get_other_language_by_post($post_id) {
   else { return false; }
 }
 
+// Returns the current language slug ('fr', 'es', etc)
 function jdml_admin_get_current_language_slug() {
   if (!empty($_GET['jdml_language_slug'])) {
     return $_GET['jdml_language_slug'];
@@ -201,11 +202,13 @@ function jdml_get_edit_post_link($post_id, $label=null) {
 
 class JDML_AdminPostTable {
 
+  // Add a new column in the posts admin view
   static function add_new_column($defaults) {
     $defaults[JDML_TAX_SLUG_PLURAL] = __(JDML_TAX_SLUG, 'jdml');
     return $defaults;
   }
 
+  // Add the custom column data in posts admin view
   static function add_column_data($column_name, $post_id) {
     if ($column_name == JDML_TAX_SLUG_PLURAL) {
       $_taxonomy = JDML_TAX_SLUG;
@@ -231,14 +234,7 @@ class JDML_AdminPostTable {
     return 10000; // which is unlikely to be met
   }
 
-  function posts_query_filter($query) {
-    global $pagenow;
-    if (is_admin() && $pagenow == 'edit.php') {
-      $lang = jdml_admin_get_current_language_slug();
-      $query->query_vars['language'] = $lang;
-    }
-  }
-
+  // display the Language-based filtering links in the admin Posts view
   function views_edit_post($views) {
     global $post_type_object;
     $post_type = $post_type_object->name;
@@ -284,6 +280,7 @@ function jdml_create_language_taxonomy() {
 // Meta box
 // -----------------------------------------------------------------
 
+// Add the language metabox on every registered custom post type
 function jdml_add_language_metaboxe() {
   global $jdml_post_types;
   foreach ($jdml_post_types as $post_type) {
@@ -365,6 +362,8 @@ function jdml_save_post_meta($post_id, $post) {
 
 // custom taxonomy permalinks
 
+// A filter that replaces the %language% segment by the post's language 
+// slug, in the permalink
 function jdml_language_permalink($permalink, $post_id, $leavename) {
   // if we didn't find %language% in this url, return the unchanged url:
   if (strpos($permalink, '%'. JDML_TAX_SLUG .'%') === FALSE) return $permalink;
@@ -379,7 +378,7 @@ function jdml_language_permalink($permalink, $post_id, $leavename) {
   return str_replace('%'. JDML_TAX_SLUG .'%', $taxonomy_slug, $permalink);
 }
 
-// Returns http://www.mysite.com/the/page/
+// Returns the current URL (http://www.mysite.com/the/page/)
 function jdml_get_current_page_url() {
   $pageURL = 'http';
   if (is_ssl()) { $pageURL .= "s"; }
@@ -392,7 +391,7 @@ function jdml_get_current_page_url() {
   return $pageURL;
 }
 
-// set the locale according to the current language
+// Set the locale according to the current language
 function jdml_set_locale( $lang ) {
   global $jdml_locales;
   $current_lang = jdml_get_current_language_slug();
@@ -404,6 +403,7 @@ function jdml_set_locale( $lang ) {
   return $lang;
 }
 
+// Sets the $jdml_post_types global variable when cpt registrations are being processed
 function jdml_registered_post_types() {
   global $jdml_post_types;
   $jdml_post_types = array();
@@ -429,7 +429,6 @@ foreach ($jdml_post_types as $post_type) {
   add_filter('edit_'.$post_type.'_per_page', array('JDML_AdminPostTable', 'edit_pages_per_page'));
   add_filter('views_edit-'.$post_type, array('JDML_AdminPostTable', 'views_edit_post'));
 }
-// add_filter('parse_query', array('JDML_AdminPostTable', 'posts_query_filter'));
 
 // Taxonomy:
 add_action('init', 'jdml_create_language_taxonomy', 0);

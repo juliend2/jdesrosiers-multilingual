@@ -352,12 +352,12 @@ function jdml_save_post_meta($post_id, $post) {
 
   // set the post's corresponding post:
   $updated_post = update_post_meta($post->ID, $key, $corresponding_id);
-  if (!$corresponding_id) delete_post_meta($post->ID, ''); // Delete if blank
+  if (!$corresponding_id) delete_post_meta($post->ID, $key); // Delete if blank
 
   // set the corresponding post's corresponding post:
   $corresponding_corresponding = $post->post_type == 'revision' ? $post->post_parent : $post->ID;
   $updated_corresponding = update_post_meta((int)$corresponding_id, $key, $corresponding_corresponding);
-  if (!$post->ID) delete_post_meta((int)$corresponding_id, ''); // Delete if blank
+  if (!$post->ID) delete_post_meta((int)$corresponding_id, $key); // Delete if blank
 }
 
 // custom taxonomy permalinks

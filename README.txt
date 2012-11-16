@@ -25,7 +25,7 @@ This project is hosted on https://github.com/juliend2/jdesrosiers-multilingual
 
 1. Upload `jdesrosiers-multilingual` to the `/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Go in Pages -> Languages, and add your two languages from there. Name should
+1. Go in Pages -> Language, and add your two languages from there. Name should
 be something like "English", and Slug should be something like "en" (two
 lowercase letters).
 1. In Settings -> Permalinks, put the following in the "Custom Structure"
@@ -33,6 +33,20 @@ field: `/%language%/%postname%/` . This will prepend the language slug to your
 post permalinks.
 1. In your template, add this tag where you want the language switcher
 to appear: `<?php jdml_language_switcher(); ?>`
+1. Add a file named `taxonomy-language.php` in your theme, with the following
+content:
+	<?php
+	/*
+	Modify the current query to only get the page, and not the list of all the 
+	pages in this language.
+	*/
+	$lang_slug = get_query_var('language');
+	query_posts(array(
+	  'pagename' => $lang_slug
+	));
+
+	get_template_part('content', 'home');
+
 
 == Frequently Asked Questions ==
 

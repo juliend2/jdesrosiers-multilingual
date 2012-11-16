@@ -50,6 +50,12 @@ content:
 want as a home page.
 1. Make sure you set "Your latest post" in Settings > Reading > Front page
 displays.
+1. You now have to create a "Page" entry for the home page of every language
+you want to support. And for its slug, give it the locale name (like 'en' or
+'fr').
+1. Every page that you want to appear under `/fr/` (in the URL) must be a child
+page of its corresponding home page. For example, the About page must be a
+child page of the Home page to appear under the `/en/about/` URL.
 
 
 == Frequently Asked Questions ==

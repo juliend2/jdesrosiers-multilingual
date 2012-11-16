@@ -56,6 +56,9 @@ you want to support. And for its slug, give it the locale name (like 'en' or
 1. Every page that you want to appear under `/fr/` (in the URL) must be a child
 page of its corresponding home page. For example, the About page must be a
 child page of the Home page to appear under the `/en/about/` URL.
+1. For each page, you must also choose a "Language" in the Language taxonomy
+box at the right. And you must set a corresponding page in the other language
+as well in the "Corresponding Object" box.
 
 
 == Frequently Asked Questions ==

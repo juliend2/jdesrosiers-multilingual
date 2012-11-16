@@ -46,6 +46,10 @@ content:
 	));
 
 	get_template_part('content', 'home');
+1. Create a file named `content-home.php` in your theme, with whatever you
+want as a home page.
+1. Make sure you set "Your latest post" in Settings > Reading > Front page
+displays.
 
 
 == Frequently Asked Questions ==

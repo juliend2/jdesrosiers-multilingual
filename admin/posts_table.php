@@ -27,7 +27,7 @@ class JDML_AdminPostTable {
       }
       $corresponding_id = get_post_meta($post_id, '_jdml_corresponding_post_id', true);
       if (!empty($corresponding_id)) {
-        echo '<br/>Translation: '. jdml_get_edit_post_link($corresponding_id);
+        echo '<br/>Translation: '. JDML::get_edit_post_link($corresponding_id);
       }
     } 
   }
@@ -41,7 +41,7 @@ class JDML_AdminPostTable {
   function views_edit_post($views) {
     global $post_type_object;
     $post_type = $post_type_object->name;
-    $languages = jdml_get_all_languages();
+    $languages = JDML::get_all_languages();
     foreach ($languages as $language) {
       $class = !empty($_GET['post_status']) && !empty($_GET['language']) && $_GET['language']==$language->slug 
         ? ' class="current"' : '';

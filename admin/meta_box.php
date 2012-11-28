@@ -19,7 +19,7 @@ function jdml_corresponding_post_id() {
    . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
 
   // Get the corresponding post id data if its already been entered
-  $corresponding_id = jdml_get_corresponding_post_id($post->ID);
+  $corresponding_id = JDML::get_corresponding_post_id($post->ID);
   // Echo out the field
   $other_language = jdml_get_other_language_by_post($post->ID);
   $get_posts_conditions = array(
@@ -47,7 +47,7 @@ function jdml_corresponding_post_id() {
 
   $corresponding_id = get_post_meta($post->ID, '_jdml_corresponding_post_id', true);
   if (!empty($corresponding_id)) {
-    $html .= '<p>'. jdml_get_edit_post_link($corresponding_id, __('Edit the Translation')) .'</p>';
+    $html .= '<p>'. JDML::get_edit_post_link($corresponding_id, __('Edit the Translation')) .'</p>';
   }
 
   echo $html;

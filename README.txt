@@ -32,7 +32,7 @@ lowercase letters).
 field: `/%language%/%postname%/` . This will prepend the language slug to your
 post permalinks.
 1. In your template, add this tag where you want the language switcher
-to appear: `<?php jdml_language_switcher(); ?>`
+to appear: `<?php the_language_switcher(); ?>`
 1. Add a file named `taxonomy-language.php` in your theme, with the following
 content:
 	<?php

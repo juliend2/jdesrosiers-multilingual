@@ -10,7 +10,7 @@ Author URI: http://www.juliendesrosiers.com
 
 //
 // WARNING: JDesrosiers multilingual supports only two languages, 
-// so you can only build bilingual sites for now.
+// so you can only build bilingual sites with it, for now.
 //
 
 // -----------------------------------------------------------------
@@ -58,7 +58,7 @@ $jdml_locales = array(
 // -----------------------------------------------------------------
 
 // Displays a Language switcher
-function jdml_the_language_switcher($post_id=null, $label=null) {
+function jdml_get_language_switcher($post_id=null, $label=null) {
   $post_id = is_null($post_id) ? get_the_ID() : $post_id;
   if (is_null($label)) {
     $corresponding_language = jdml_get_corresponding_language_object();
@@ -72,8 +72,8 @@ function jdml_the_language_switcher($post_id=null, $label=null) {
   }
 }
 
-function jdml_language_switcher($post_id=null, $label=null) {
-  echo jdml_the_language_switcher($post_id, $label);
+function the_language_switcher($post_id=null, $label=null) {
+  echo jdml_get_language_switcher($post_id, $label);
 }
 
 // Returns an Object of the post's language, containing these properties:

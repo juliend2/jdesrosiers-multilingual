@@ -16,11 +16,18 @@ Author URI: http://www.juliendesrosiers.com
 // -----------------------------------------------------------------
 // DEFINES
 // -----------------------------------------------------------------
-
 define('JDML_TAX_NAME', 'Languages');
 define('JDML_TAX_SINGLE', 'Language');
 define('JDML_TAX_SLUG', 'language');
 define('JDML_TAX_SLUG_PLURAL', 'languages');
+define('JDML_ROOT', dirname(__FILE__));
+
+// -----------------------------------------------------------------
+// INCLUDES
+// -----------------------------------------------------------------
+include_once JDML_ROOT . '/admin/posts_table.php';
+include_once JDML_ROOT . '/admin/meta_box.php';
+include_once JDML_ROOT . '/taxonomies.php';
 
 // global variables:
 
@@ -49,10 +56,6 @@ $jdml_locales = array(
   'pl' => "pl_PL",
 );
 
-
-// ----------------------------------------------------------------
-// FUNCTIONS AND CLASSES
-// -----------------------------------------------------------------
 
 // Helper functions
 // -----------------------------------------------------------------
@@ -195,169 +198,6 @@ function jdml_get_edit_post_link($post_id, $label=null) {
   $p = get_post($post_id);
   $label = is_null($label) ? $p->post_title : $label;
   return '<a href="post.php?action=edit&post='. $p->ID .'">'. $label .'</a>';
-}
-
-// New "language" column for posts (and other post types) table
-// -----------------------------------------------------------------
-
-class JDML_AdminPostTable {
-
-  // Add a new column in the posts admin view
-  static function add_new_column($defaults) {
-    $defaults[JDML_TAX_SLUG_PLURAL] = __(JDML_TAX_SLUG, 'jdml');
-    return $defaults;
-  }
-
-  // Add the custom column data in posts admin view
-  static function add_column_data($column_name, $post_id) {
-    if ($column_name == JDML_TAX_SLUG_PLURAL) {
-      $_taxonomy = JDML_TAX_SLUG;
-      $terms = get_the_terms($post_id, $_taxonomy);
-      if (!empty($terms)) {
-        $out = array();
-        foreach ($terms as $t) {
-          $out[] = '<strong>'.$t->name.'</strong>';
-        }
-        echo join(', ', $out);
-      } else {
-        _e('Language not set');
-      }
-      $corresponding_id = get_post_meta($post_id, '_jdml_corresponding_post_id', true);
-      if (!empty($corresponding_id)) {
-        echo '<br/>Translation: '. jdml_get_edit_post_link($corresponding_id);
-      }
-    } 
-  }
-
-  // sets the limit of posts to show per admin pages
-  function edit_pages_per_page($posts_per_page) {
-    return 10000; // which is unlikely to be met
-  }
-
-  // display the Language-based filtering links in the admin Posts view
-  function views_edit_post($views) {
-    global $post_type_object;
-    $post_type = $post_type_object->name;
-    $languages = jdml_get_all_languages();
-    foreach ($languages as $language) {
-      $class = !empty($_GET['post_status']) && !empty($_GET['language']) && $_GET['language']==$language->slug 
-        ? ' class="current"' : '';
-      $views[$language->slug] = '<a href="edit.php?language='.$language->slug.
-        '&post_type='.$post_type.
-        '&post_status=published"'.$class.'>'.$language->name.'</a>';
-    }
-    return $views;
-  }
-
-}
-
-// Taxonomy
-// -----------------------------------------------------------------
-
-function jdml_create_language_taxonomy() {
-  global $jdml_post_types;
-  register_taxonomy(JDML_TAX_SLUG, $jdml_post_types, array(
-    'hierarchical' => true,
-    'labels' => array(
-      'name' => _x( JDML_TAX_NAME, 'jdml'),
-      'singular_name' => _x( JDML_TAX_SINGLE, 'taxonomy singular name', 'jdml' ),
-      'search_items' =>  __( 'Search ' . JDML_TAX_NAME , 'jdml'),
-      'all_items' => __( 'All ' . JDML_TAX_NAME , 'jdml'),
-      'parent_item' => __( 'Parent ' . JDML_TAX_SINGLE , 'jdml'),
-      'parent_item_colon' => __( 'Parent ' . JDML_TAX_SINGLE . ':' , 'jdml'),
-      'edit_item' => __( 'Edit ' . JDML_TAX_SINGLE , 'jdml'), 
-      'update_item' => __( 'Update ' . JDML_TAX_SINGLE , 'jdml'),
-      'add_new_item' => __( 'Add New ' . JDML_TAX_SINGLE , 'jdml'),
-      'new_item_name' => __( 'New ' . JDML_TAX_SINGLE . ' Name' , 'jdml'),
-      'menu_name' => __( JDML_TAX_SINGLE , 'jdml'),
-    ),
-    'show_ui' => true,
-    'query_var' => true,
-    'rewrite' => array( 'slug' => JDML_TAX_SLUG )
-  ));
-}
-
-// Meta box
-// -----------------------------------------------------------------
-
-// Add the language metabox on every registered custom post type
-function jdml_add_language_metaboxe() {
-  global $jdml_post_types;
-  foreach ($jdml_post_types as $post_type) {
-    add_meta_box('jdml_corresponding_post_id', __('Corresponding Object', 'jdml'), 'jdml_corresponding_post_id', $post_type, 'side', 'default');
-  }
-}
-
-// The Post's corresponding post id Metabox
-function jdml_corresponding_post_id() {
-  global $post;
-  echo '<input type="hidden" name="jdmlcorrespondingpostidmeta_noncename" '
-   . 'id="jdmlcorrespondingpostidmeta_noncename" value="'
-   . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
-
-  // Get the corresponding post id data if its already been entered
-  $corresponding_id = jdml_get_corresponding_post_id($post->ID);
-  // Echo out the field
-  $other_language = jdml_get_other_language_by_post($post->ID);
-  $get_posts_conditions = array(
-    'numberposts' => -1,
-    'orderby' => 'title',
-    'order' => 'ASC',
-    'post_type' => $post->post_type,
-    'post_status' => 'publish'
-  );
-  if (!empty($other_language)) {
-    $get_posts_conditions['language'] = $other_language;
-  }
-  $probable_corresponding_posts = get_posts($get_posts_conditions);
-  $html = '<p><label for="jdml_corresponding_post_id"><strong>'. __('Choose the '. $post->post_type .' translation', 'jdml') .'</strong></label></p>';
-  $html .= '<p><select name="_jdml_corresponding_post_id" id="jdml_corresponding_post_id">';
-  $html .= '<option value="">'. __('[Select a '. $post->post_type .']', 'jdml') .'</option>';
-  foreach ($probable_corresponding_posts as $p) {
-    $html .= '<option value="'. $p->ID .'" ';
-    if ($corresponding_id && $corresponding_id == $p->ID) {
-      $html .= ' selected="selected" ';
-    }
-    $html .= ' >'. $p->post_title .'</option>';
-  }
-  $html .= '</select></p>';
-
-  $corresponding_id = get_post_meta($post->ID, '_jdml_corresponding_post_id', true);
-  if (!empty($corresponding_id)) {
-    $html .= '<p>'. jdml_get_edit_post_link($corresponding_id, __('Edit the Translation')) .'</p>';
-  }
-
-  echo $html;
-}
-
-// Save the metabox data
-function jdml_save_post_meta($post_id, $post) {
-  global $jdml_post_types;
-  $key = '_jdml_corresponding_post_id';
-  // if we're not in a jdml-enabled post type, skip.
-  if (in_array($post->post_type, $jdml_post_types)) return $post;
-  // verify this came from our screen and with proper authorization,
-  // because save_post can be triggered at other times
-  if (empty($_POST[$key]) || empty($_POST['jdmlcorrespondingpostidmeta_noncename']) || !wp_verify_nonce($_POST['jdmlcorrespondingpostidmeta_noncename'], plugin_basename(__FILE__)) ) {
-    return $post->ID;
-  }
-  // Is the user allowed to edit the posts?
-  // TODO: see if we can verify this for more than just the 'post' post-type
-  if (!current_user_can('edit_post', $post->ID)) {
-    return $post->ID;
-  }
-  // OK, we're authenticated: we need to find and save the data
-  // We'll put it into an array to make it easier to loop though.
-  $corresponding_id = $_POST[$key];
-
-  // set the post's corresponding post:
-  $updated_post = update_post_meta($post->ID, $key, $corresponding_id);
-  if (!$corresponding_id) delete_post_meta($post->ID, $key); // Delete if blank
-
-  // set the corresponding post's corresponding post:
-  $corresponding_corresponding = $post->post_type == 'revision' ? $post->post_parent : $post->ID;
-  $updated_corresponding = update_post_meta((int)$corresponding_id, $key, $corresponding_corresponding);
-  if (!$post->ID) delete_post_meta((int)$corresponding_id, $key); // Delete if blank
 }
 
 // custom taxonomy permalinks

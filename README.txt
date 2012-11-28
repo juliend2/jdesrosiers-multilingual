@@ -60,7 +60,7 @@ child page of the Home page to appear under the `/en/about/` URL.
 box at the right. And you must set a corresponding page in the other language
 as well in the "Corresponding Object" box.
 1. Add the following at the very top of your index.php file:
-	if (jdml_get_current_language_slug() === '') {
+	if (JDML::get_current_language_slug() === '') {
 	  wp_redirect(site_url().'/en', 301);
 	}
 

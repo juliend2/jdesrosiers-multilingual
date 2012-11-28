@@ -21,7 +21,7 @@ function jdml_corresponding_post_id() {
   // Get the corresponding post id data if its already been entered
   $corresponding_id = JDML::get_corresponding_post_id($post->ID);
   // Echo out the field
-  $other_language = jdml_get_other_language_by_post($post->ID);
+  $other_language = JDML::get_other_language_by_post($post->ID);
   $get_posts_conditions = array(
     'numberposts' => -1,
     'orderby' => 'title',

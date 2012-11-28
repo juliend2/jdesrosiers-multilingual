@@ -115,7 +115,7 @@ class JDML {
   // post_id - Integer ID of the post
   //
   // Returns a link to edit the post in the admin
-  function get_edit_post_link($post_id, $label=null) {
+  static function get_edit_post_link($post_id, $label=null) {
     $p = get_post($post_id);
     $label = is_null($label) ? $p->post_title : $label;
     return '<a href="post.php?action=edit&post='. $p->ID .'">'. $label .'</a>';

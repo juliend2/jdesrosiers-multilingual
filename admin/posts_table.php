@@ -27,7 +27,8 @@ class JDML_AdminPostTable {
       }
       $corresponding_id = get_post_meta($post_id, '_jdml_corresponding_post_id', true);
       if (!empty($corresponding_id)) {
-        echo '<br/>Translation: '. JDML::get_edit_post_link($corresponding_id);
+        $corresponding_post = new JDML_Post($corresponding_id);
+        echo '<br/>Translation: '. $corresponding_post->get_edit_post_link();
       }
     } 
   }

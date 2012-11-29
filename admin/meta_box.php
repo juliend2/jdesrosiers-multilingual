@@ -18,10 +18,12 @@ function jdml_corresponding_post_id() {
    . 'id="jdmlcorrespondingpostidmeta_noncename" value="'
    . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
 
+  $jdml_post = new JDML_Post($post->ID);
   // Get the corresponding post id data if its already been entered
-  $corresponding_id = JDML::get_corresponding_post_id($post->ID);
+  $corresponding_id = $jdml_post->corresponding_post_id();
+  $other_language = $jdml_post->other_language();
+
   // Echo out the field
-  $other_language = JDML::get_other_language_by_post($post->ID);
   $get_posts_conditions = array(
     'numberposts' => -1,
     'orderby' => 'title',
@@ -47,7 +49,8 @@ function jdml_corresponding_post_id() {
 
   $corresponding_id = get_post_meta($post->ID, '_jdml_corresponding_post_id', true);
   if (!empty($corresponding_id)) {
-    $html .= '<p>'. JDML::get_edit_post_link($corresponding_id, __('Edit the Translation')) .'</p>';
+    $corresponding_post = new JDML_Post($corresponding_id);
+    $html .= '<p>'. $corresponding_post->get_edit_post_link(__('Edit the Translation')) .'</p>';
   }
 
   echo $html;

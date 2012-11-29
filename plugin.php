@@ -28,6 +28,7 @@ define('JDML_ROOT', dirname(__FILE__));
 include_once JDML_ROOT . '/admin/posts_table.php';
 include_once JDML_ROOT . '/admin/meta_box.php';
 include_once JDML_ROOT . '/taxonomies.php';
+include_once JDML_ROOT . '/jdml-post.php';
 include_once JDML_ROOT . '/jdml.php';
 
 // global variables:
@@ -46,7 +47,8 @@ $jdml_post_types = array(
 // -----------------------------------------------------------------
 
 function the_language_switcher($post_id=null, $label=null) {
-  echo JDML::get_language_switcher($post_id, $label);
+  $jdml_post = new JDML_Post($post_id);
+  echo $jdml_post->get_language_switcher($label);
 }
 
 

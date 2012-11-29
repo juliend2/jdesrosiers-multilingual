@@ -82,3 +82,4 @@ function jdml_save_post_meta($post_id, $post) {
   $updated_corresponding = update_post_meta((int)$corresponding_id, $key, $corresponding_corresponding);
   if (!$post->ID) delete_post_meta((int)$corresponding_id, $key); // Delete if blank
 }
+

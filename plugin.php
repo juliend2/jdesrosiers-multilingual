@@ -71,19 +71,6 @@ function jdml_language_permalink($permalink, $post_id, $leavename) {
   return str_replace('%'. JDML_TAX_SLUG .'%', $taxonomy_slug, $permalink);
 }
 
-// Returns the current URL (http://www.mysite.com/the/page/)
-function jdml_get_current_page_url() {
-  $pageURL = 'http';
-  if (is_ssl()) { $pageURL .= "s"; }
-  $pageURL .= "://";
-  if ($_SERVER["SERVER_PORT"] != "80") {
-    $pageURL .= $_SERVER["SERVER_NAME"].":".$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"];
-  } else {
-    $pageURL .= $_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
-  }
-  return $pageURL;
-}
-
 // Set the locale according to the current language
 function jdml_set_locale( $lang ) {
   $current_lang = JDML::get_current_language_slug();

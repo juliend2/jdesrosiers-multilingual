@@ -46,10 +46,23 @@ class JDML {
     // return get_query_var('language');
     // ...So we use the URL from the $_SERVER superglobal:
     $base_url = get_bloginfo('wpurl');
-    $current_url = jdml_get_current_page_url();
+    $current_url = self::get_current_page_url();
     $segments = substr($current_url, strlen($base_url));
     preg_match('%^/?(\w{2})%', $segments, $matches);
     return !empty($matches) ? $matches[1] : '';
+  }
+
+  // Returns the current URL (http://www.mysite.com/the/page/)
+  static function get_current_page_url() {
+    $pageURL = 'http';
+    if (is_ssl()) { $pageURL .= "s"; }
+    $pageURL .= "://";
+    if ($_SERVER["SERVER_PORT"] != "80") {
+      $pageURL .= $_SERVER["SERVER_NAME"].":".$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"];
+    } else {
+      $pageURL .= $_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
+    }
+    return $pageURL;
   }
 
 }

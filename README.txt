@@ -76,6 +76,9 @@ more than two languages, but I'm always open to pull requests.
 
 == Changelog ==
 
+= 1.3 =
+* Major code refactoring 
+
 = 1.2.1 =
 * In posts admin view: hightlight the current language in the filters list
 
